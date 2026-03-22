@@ -4,12 +4,88 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recycling Game</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #scoreboard { margin-top: 20px; }
+        .draggable { width: 100px; height: 100px; margin: 10px; display: inline-block; cursor: pointer; }
+        .dropzone { width: 200px; height: 200px; border: 2px dashed #ccc; display: inline-block; margin: 10px; position: relative; }
+        .leaderboard { margin-top: 20px; }
+        #timer { font-size: 20px; }
+    </style>
 </head>
 <body>
-    <h1>Welcome to the Recycling Game</h1>
-    <p>Your task is to sort the waste items into the correct bins.</p>
+    <h1>Recycling Game</h1>
+    <div id="scoreboard">
+        <h2>Score: <span id="score">0</span></h2>
+        <div id="timer">Time Remaining: <span id="time">60</span> seconds</div>
+    </div>
+    <div class="draggable" draggable="true" id="item1">Plastic Bottle</div>
+    <div class="draggable" draggable="true" id="item2">Glass Bottle</div>
+    <div class="dropzone" id="recycleBin">
+        Drop Here
+    </div>
+    <div class="leaderboard" id="leaderboard">
+        <h2>Leaderboard</h2>
+        <ul id="leaderboardList"></ul>
+    </div>
     <script>
-        // Game logic goes here
+        const items = document.querySelectorAll('.draggable');
+        const scoreDisplay = document.getElementById('score');
+        const timerDisplay = document.getElementById('time');
+        const leaderboardList = document.getElementById('leaderboardList');
+        let score = 0;
+        let time = 60;
+        let timer;
+
+        items.forEach(item => {
+            item.addEventListener('dragstart', dragStart);
+        });
+
+        function dragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.id);
+        }
+
+        const dropzone = document.getElementById('recycleBin');
+        dropzone.addEventListener('dragover', dragOver);
+        dropzone.addEventListener('drop', drop);
+
+        function dragOver(e) {
+            e.preventDefault();
+        }
+
+        function drop(e) {
+            e.preventDefault();
+            const id = e.dataTransfer.getData('text/plain');
+            const draggedElement = document.getElementById(id);
+            dropzone.appendChild(draggedElement);
+            score += 10;
+            scoreDisplay.textContent = score;
+        }
+
+        function startGame() {
+            timerDisplay.textContent = time;
+            timer = setInterval(() => {
+                time--;
+                timerDisplay.textContent = time;
+                if (time <= 0) {
+                    clearInterval(timer);
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            alert('Game Over! Your score: ' + score);
+            updateLeaderboard(score);
+        }
+
+        function updateLeaderboard(newScore) {
+            const newItem = document.createElement('li');
+            newItem.textContent = 'Score: ' + newScore;
+            leaderboardList.appendChild(newItem);
+        }
+
+        startGame();
     </script>
 </body>
 </html>
